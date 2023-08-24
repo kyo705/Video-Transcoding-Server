@@ -1,13 +1,19 @@
 package com.ktube.transcoding.dto;
 
+import com.ktube.transcoding.validation.InputVideoFileFormat;
 import lombok.Getter;
 import lombok.Setter;
+
+import javax.validation.constraints.NotEmpty;
 
 @Setter
 @Getter
 public class InputFileMetaData {
 
-    private String fileDirectory;
+    @NotEmpty
+    private String commonVideoFileDirectory;
+    @NotEmpty
     private String fileName;
-    private String fileExtension;
+    @NotEmpty @InputVideoFileFormat
+    private String fileFormat;
 }
