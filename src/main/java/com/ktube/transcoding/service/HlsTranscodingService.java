@@ -10,6 +10,7 @@ import net.bramp.ffmpeg.builder.FFmpegBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import static com.ktube.transcoding.constants.constants.*;
@@ -28,21 +29,20 @@ public class HlsTranscodingService implements TranscodingService {
     @Override
     public String transcode(InputFileMetaData inputFileMetaData) {
 
-        //원본 파일 경로       : /video/{userId}/{videoId}/original/
-        //hls 변환된 파일 경로 : /video/{userId}/videoId}/transcoding/hls/
+        // 원본 파일 경로 : /video/{channel-id}/{video-id}/original/
+        // hls 변환된 파일 경로 : /video/{channel-id}/video-id}/transcoding/hls/
 
-        String originalDirectory = home_dir + inputFileMetaData.getCommonVideoFileDirectory() + ORIGINAL_DIR_PREFIX;
-        String hlsDirectory = home_dir + inputFileMetaData.getCommonVideoFileDirectory() + HLS_DIR_PREFIX;
+        String hlsDirectory = Paths.get(home_dir ,inputFileMetaData.getCommonVideoFileDirectory(), HLS_DIR_PREFIX).toString();
 
-        String inputFilePath = originalDirectory + inputFileMetaData.getFileName() + inputFileMetaData.getFileFormat();
-        String outFilePath = hlsDirectory + OUTPUT_FILE_NAME;
+        String inputFilePath = Paths.get(home_dir, inputFileMetaData.getCommonVideoFileDirectory(), ORIGINAL_DIR_PREFIX, inputFileMetaData.getFileName() + inputFileMetaData.getFileFormat()).toString();
+        String outFilePath = Paths.get(hlsDirectory , OUTPUT_FILE_NAME).toString();
 
         beforeTranscoding(inputFilePath, hlsDirectory);
 
         FFmpegBuilder builder = new FFmpegBuilder()
-                .setInput(inputFilePath) //파일 경로 및 파일 이름 , 확장자까지 다 나오도록
+                .setInput(inputFilePath)
                 .overrideOutputFiles(true)
-                .addOutput(outFilePath) //파일 경로 및 파일 이름 , 확장자까지 다 나오도록
+                .addOutput(outFilePath)
                 .setFormat("hls")
                 .setStartOffset(0, TimeUnit.MILLISECONDS) // Use null to start immediately
                 .addExtraArgs("-hls_time", "10") // Set segment duration
